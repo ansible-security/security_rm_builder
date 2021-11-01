@@ -1,0 +1,9 @@
+---
+authors:
+    - Ansible Security Community (ansible-security)
+license_file: LICENSE
+name: security_scaffolding_tool
+namespace: ansible_security
+readme: README.md
+repository: https://github.com/ansible-security/security-scaffolding-tool
+version: 0.0.1

@@ -1,0 +1,10 @@
+path_to_module: '{{ rm_dest }}/plugins/modules/{{ network_os }}_{{ resource }}.py'
+
+directories:
+  - plugins/modules
+  - plugins/filter
+  - plugins/action
+  - plugins/inventory
+  - docs
+  - meta
+  - tests
