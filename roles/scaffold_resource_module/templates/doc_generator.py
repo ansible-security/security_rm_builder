@@ -8,9 +8,6 @@ import oyaml as yaml
 from collections import OrderedDict, deque
 
 from ansible.module_utils.six import iteritems
-from ansible.plugins.action import ActionBase
-from ansible.errors import AnsibleActionFail
-from ansible.module_utils.connection import Connection
 
 
 def generate_documentation(attribute_map_by_param, json_payload, parent_module, module_info, module_version):
@@ -155,7 +152,6 @@ def get_api_param_properties(object, api_object, data):
 
     for k, v in iteritems(post_object.get('properties')):
         if '$ref' in v:
-            print(k, v, v['$ref'])
             inbound_1st_level_schema_path = v['$ref'].split('/')
             temp_k_properties = get_api_object(inbound_1st_level_schema_path, data)
             if temp_k_properties.get('properties'):
@@ -187,7 +183,6 @@ def get_api_param_properties(object, api_object, data):
                 post_object['properties'][k] = temp_param_key
 
         elif 'items' in v and '$ref' in v['items']:
-            print(k, v, v['items']['$ref'])
             inbound_schema_path = v['items']['$ref'].split('/')
             ref_object = get_api_object(inbound_schema_path, data)
             post_object['properties'][k]["items"] = {inbound_schema_path[-1]: ref_object}
@@ -318,7 +313,7 @@ def get_api_param_properties_recursively(object, api_object, data, global_var_mg
                         previous = True
                         continue
                     if val == 'processPolicy':
-                        print(val)
+                        pass
                     if val == 'split' and i == 0:
                         continue
                     if not isinstance(val, dict) and val not in parent_key_elements:
@@ -360,9 +355,7 @@ def get_api_param_properties_recursively(object, api_object, data, global_var_mg
     return post_object
 
 def main():
-    print("Enter Main!!!!")
     with open('/Users/sjaiswal/Sumit/ansible_fork/collections/security_collections/doc_generator/swagger_tm.json') as file:
-        print("Inside")
         json_content = file.read()
         data = json.loads(json_content, object_pairs_hook=OrderedDict)
         api_object = data["paths"]["/intrusionpreventionrules"]["post"]
@@ -374,7 +367,7 @@ def main():
         attribute_map_by_param = {}
 
         module_info = "Intrusion Prevention Rules"
-        module_version = "2.0.0"
+        module_version = "1.2.0"
         parent_module = "deepsec"
         generate_documentation(attribute_map_by_param, post_properties, parent_module, module_info, module_version)
 

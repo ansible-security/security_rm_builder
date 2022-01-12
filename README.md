@@ -1,5 +1,5 @@
-Role Name
-=========
+Security Module Builder
+=======================
 
 A brief description of the role goes here.
 
