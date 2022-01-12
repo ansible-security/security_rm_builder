@@ -1,0 +1,25 @@
+- name: Ensure 'rm_swagger_json' variable is set
+  assert:
+    that: rm_swagger_json is defined
+
+- name: Ensure 'api_object_path' is defined
+  assert:
+    that: api_object_path is defined
+
+- name: Ensure the 'module_name' is set
+  assert:
+    that: module_name is defined
+
+- name: Ensure the 'module_version' is set
+  assert:
+    that: module_version is defined
+
+- name: Ensure the 'collection_name' is set
+  assert:
+    that: collection_name is defined
+
+- name: "Create the collection directory structure"
+  file:
+    path: "{{ rm_dest }}/{{ item }}"
+    state: directory
+  with_items: "{{ directories }}"

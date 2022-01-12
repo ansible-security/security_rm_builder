@@ -1,0 +1,13 @@
+# tasks file for run
+- name: Install requirements
+  pip:
+    name: "{{ requirements }}"
+  changed_when: False
+
+- include_role:
+    name: "{{ builder_roles }}"
+  loop:
+    - init
+    - scaffold_resource_module
+  loop_control:
+    loop_var: builder_roles

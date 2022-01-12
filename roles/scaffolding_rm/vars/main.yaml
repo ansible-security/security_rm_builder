@@ -1,4 +1,0 @@
----
-# vars file for run
-requirements:
-- black==19.3b0
