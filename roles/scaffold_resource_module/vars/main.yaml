@@ -10,36 +10,12 @@ parent_directory: "{{ rm_dest }}/plugins"
 
 import_path: "ansible_collections.{{ collection_org|default('') }}.{{ collection_name|default('') }}.plugins.modules.{{ collection_name }}_{{ resource }}"
 
-# all the directories that need to be built
-# resource_module_directories:
-# - action/{{ collection_name }}_{{ resource }}.py
-# - module_utils
-# - module_utils/network
-# - module_utils/network/{{ network_os }}
-# - module_utils/network/{{ network_os }}/argspec
-# - module_utils/network/{{ network_os }}/argspec/facts
-# - module_utils/network/{{ network_os }}/argspec/{{ resource }}
-# - module_utils/network/{{ network_os }}/config
-# - module_utils/network/{{ network_os }}/config/{{ resource }}
-# - module_utils/network/{{ network_os }}/facts
-# - module_utils/network/{{ network_os }}/facts/{{ resource }}
-# - module_utils/network/{{ network_os }}/rm_templates
-# - module_utils/network/{{ network_os }}/utils
-# - action
-# - filter
-# - inventory
-
 # each of the files to be templated
 resource_module_templates:
 - source: module_directory/resource_module.py.j2
   destination: "{{ parent_directory }}/modules/{{ collection_name }}_{{ resource }}.py"
   overwrite: True
-- source: action_directory/resource_action_plugin.py.j2
+
+- source: action_directory/{{ collection_org }}/resource_action_plugin.py.j2
   destination: "{{ parent_directory }}/action/{{ collection_name }}_{{ resource }}.py"
   overwrite: False
-# - source: README.md.j2
-#   destination: "{{ rm_dest }}/README.md"
-#   overwrite: False
-# - source: module_directory/network_os/network_os_resource.py.j2
-#   destination: "{{ parent_directory }}/modules/{{ network_os }}_{{ resource }}.py"
-#   overwrite: True
