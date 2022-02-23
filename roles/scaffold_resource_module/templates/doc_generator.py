@@ -101,17 +101,37 @@ def generate_documentation(
                     elif (
                         "type" in val
                         and dict(val)["type"] == "array"
-                        and "suboptions" in val
-                        and isinstance(dict(val)["suboptions"], dict)
+                        and "element-type" in val
                     ):
                         temp_payload[key] = dict()
                         temp_payload[key]["description"] = val["description"]
                         temp_payload[key]["type"] = "list"
-                        temp_payload[key]["elements"] = "dict"
+                        if val["element-type"] == "string":
+                            temp_payload[key]["elements"] = "str"
+                        else:
+                            temp_payload[key]["elements"] = val["element-type"]
+                    elif (
+                        "type" in val
+                        and (
+                            dict(val)["type"] == "array"
+                            or dict(val)["type"] == "dict"
+                        )
+                        and "suboptions" in val
+                        and isinstance(dict(val)["suboptions"], dict)
+                    ):
+                        print("Under Processing!!")
+                        temp_payload[key] = dict()
+                        temp_payload[key]["description"] = val["description"]
+                        if dict(val)["type"] == "array":
+                            temp_payload[key]["type"] = "list"
+                            temp_payload[key]["elements"] = "dict"
+                        elif dict(val)["type"] == "dict":
+                            temp_payload[key]["type"] = "dict"
                         temp_payload[key]["suboptions"] = dict()
                         for inside_key, inside_val in iteritems(
                             val["suboptions"]
                         ):
+                            print(inside_key, inside_val)
                             temp_payload[key]["suboptions"][
                                 inside_key
                             ] = dict()
@@ -121,7 +141,34 @@ def generate_documentation(
                                 ].update(
                                     {"description": inside_val["description"]}
                                 )
-                            if inside_val["type"] == "string":
+                            else:
+                                temp_payload[key]["suboptions"][
+                                    inside_key
+                                ].update({"description": "N/A"})
+                            if inside_val["type"] == "dict":
+                                temp_payload[key]["suboptions"][inside_key][
+                                    "type"
+                                ] = "dict"
+                                temp_payload[key]["suboptions"][inside_key][
+                                    "suboptions"
+                                ] = {}
+                                for inside_val_k, inside_val_v in iteritems(
+                                    inside_val["suboptions"]
+                                ):
+                                    if inside_val_v.get("enum"):
+                                        inside_val_v["choices"] = inside_val_v[
+                                            "enum"
+                                        ]
+                                        del inside_val_v["enum"]
+                                    temp_payload[key]["suboptions"][
+                                        inside_key
+                                    ]["suboptions"].update(
+                                        {inside_val_k: inside_val_v}
+                                    )
+                            if (
+                                inside_val["type"] == "string"
+                                or inside_val["type"] == "str"
+                            ):
                                 temp_payload[key]["suboptions"][
                                     inside_key
                                 ].update({"type": "str"})
@@ -129,7 +176,10 @@ def generate_documentation(
                                 temp_payload[key]["suboptions"][
                                     inside_key
                                 ].update({"type": "int"})
-                            if inside_val["type"] == "boolean":
+                            if (
+                                inside_val["type"] == "boolean"
+                                or inside_val["type"] == "bool"
+                            ):
                                 temp_payload[key]["suboptions"][
                                     inside_key
                                 ].update({"type": "bool"})
@@ -166,13 +216,7 @@ def generate_documentation(
                     "The state I(gathered) will get the module API configuration from the device and transform it into structured data in the format as per the module argspec and the value is returned in the I(gathered) key within the result.",
                 ],
                 "type": "str",
-                "choices": [
-                    "merged",
-                    "replaced",
-                    "overridden",
-                    "gathered",
-                    "deleted",
-                ],
+                "choices": ["merged", "replaced", "gathered", "deleted"],
             },
         },
         "author": "{0}".format(
@@ -569,35 +613,271 @@ def get_api_param_properties_recursively(
     return post_object
 
 
+def ckp_params_fields_parsing(object_data, api_params, global_var_mgmt_dict):
+    stack = deque()
+    api_params_dict = OrderedDict()
+    temp = OrderedDict()
+    parent_key_elements = []
+    for each in api_params:
+        temp_k = each["name"]
+        if "-" in temp_k:
+            temp_k = "_".join(temp_k.split("-"))
+            global_var_mgmt_dict.update({temp_k: each["name"]})
+        stack.append(temp_k)
+        parent_key_elements.append(temp_k)
+        temp[temp_k] = OrderedDict({"description": each["description"]})
+        for each_type in each["types"]:
+            temp_type = {}
+            for each_k, each_v in iteritems(each_type):
+                if each_k == "object-name" and each_v != "java.lang.Object":
+                    stack.append("object-name")
+                    if temp_k not in global_var_mgmt_dict:
+                        global_var_mgmt_dict.update({temp_k: each["name"]})
+
+                    def get_child_params_recursively(
+                        child_object_data,
+                        request_field_name,
+                        stack,
+                        global_var_mgmt_dict,
+                    ):
+                        temp_child_type = {}
+                        for each_obj in child_object_data:
+                            if each_obj["name"] == request_field_name:
+                                request_fields = each_obj["fields"]
+                                for each_request_fields in request_fields:
+                                    child_temp_k = each_request_fields["name"]
+                                    if "-" in child_temp_k:
+                                        child_temp_k = "_".join(
+                                            child_temp_k.split("-")
+                                        )
+                                        global_var_mgmt_dict.update(
+                                            {
+                                                child_temp_k: each_request_fields[
+                                                    "name"
+                                                ]
+                                            }
+                                        )
+                                    if child_temp_k not in stack:
+                                        stack.append(child_temp_k)
+                                    stack.append(
+                                        {
+                                            "description": each_request_fields[
+                                                "description"
+                                            ]
+                                        }
+                                    )
+                                    for each_child_type in each_request_fields[
+                                        "types"
+                                    ]:
+                                        temp_child_type = {}
+                                        for (
+                                            each_child_k,
+                                            each_child_v,
+                                        ) in iteritems(each_child_type):
+                                            if each_child_k == "object-name":
+                                                stack.append("object-name")
+                                                get_child_params_recursively(
+                                                    child_object_data,
+                                                    each_child_v,
+                                                    stack,
+                                                    global_var_mgmt_dict,
+                                                )
+                                            elif (
+                                                each_child_k == "valid-values"
+                                            ):
+                                                temp_child_type.update(
+                                                    {"enum": each_child_v}
+                                                )
+                                            elif each_child_v == "list":
+                                                temp_child_type[
+                                                    "type"
+                                                ] = "array"
+                                            elif (
+                                                each_child_v
+                                                == "java.lang.Object"
+                                            ):
+                                                temp_child_type[
+                                                    "type"
+                                                ] = "array"
+                                            elif (
+                                                each_child_k == "element-type"
+                                            ):
+                                                temp_child_type.update(
+                                                    {
+                                                        "element-type": each_child_v[
+                                                            "name"
+                                                        ]
+                                                    }
+                                                )
+                                            elif each_child_v == "boolean":
+                                                temp_child_type[
+                                                    "type"
+                                                ] = each_child_v
+                                            elif each_child_v == "integer":
+                                                temp_child_type[
+                                                    "type"
+                                                ] = each_child_v
+                                            else:
+                                                temp_child_type[
+                                                    "type"
+                                                ] = each_child_v
+                                    if temp_child_type:
+                                        stack.append(temp_child_type)
+                                break
+
+                    get_child_params_recursively(
+                        object_data, each_v, stack, global_var_mgmt_dict
+                    )
+                elif each_k == "valid-values":
+                    temp_type.update({"enum": each_v})
+                elif each_k == "element-type":
+                    temp_type.update({"element-type": each_v["name"]})
+                elif each_v == "object":
+                    temp_type["type"] = "dict"
+                elif each_v == "list":
+                    temp_type["type"] = "array"
+                    temp_type.update({"element-type": "string"})
+                elif each_v == "java.lang.Object":
+                    temp_type["type"] = "array"
+                    temp_type.update({"element-type": "string"})
+                elif each_v == "boolean":
+                    temp_type["type"] = each_v
+                elif each_v == "integer":
+                    temp_type["type"] = each_v
+                else:
+                    temp_type["type"] = each_v
+        temp_stack_val = {}
+        if len(stack) > 1:
+            temp_parent = stack.popleft()
+            if "list" in stack:
+                temp_stack_val[temp_parent] = {
+                    "type": "list",
+                    "elements": "dict",
+                    "suboptions": OrderedDict(),
+                }
+            else:
+                temp_stack_val[temp_parent] = {
+                    "type": "dict",
+                    "suboptions": OrderedDict(),
+                }
+            count = 0
+            stack_len = len(stack)
+            verify_temp_val = False
+            try:
+                for i in range(stack_len):
+                    stack_val = stack.popleft()
+                    if stack_val == "object-name" and i != 0:
+                        child_param = {
+                            "type": "dict",
+                            "suboptions": OrderedDict(),
+                        }
+                        for j in range(i + 1, stack_len):
+                            temp_val = stack.popleft()
+                            if verify_temp_val == temp_val or (
+                                isinstance(temp_val, dict)
+                                and temp_val.get("type") == "object"
+                            ):
+                                verify_temp_val = True
+                                break
+                            if temp_val != "object-name" and not isinstance(
+                                temp_val, dict
+                            ):
+                                child_param["suboptions"].update(
+                                    {temp_val: {}}
+                                )
+                                child_temp_param = temp_val
+                            elif isinstance(temp_val, dict):
+                                child_param["suboptions"][
+                                    child_temp_param
+                                ].update(temp_val)
+                                verify_temp_val = temp_val
+                    if verify_temp_val:
+                        temp_stack_val[temp_parent]["suboptions"].update(
+                            {child_stack_param: child_param}
+                        )
+                        verify_temp_val = False
+                        continue
+                    if stack_val != "object-name" and not isinstance(
+                        stack_val, dict
+                    ):
+                        temp_stack_val[temp_parent]["suboptions"].update(
+                            {stack_val: {}}
+                        )
+                        child_stack_param = stack_val
+                    elif isinstance(stack_val, dict):
+                        temp_stack_val[temp_parent]["suboptions"][
+                            child_stack_param
+                        ].update(stack_val)
+            except IndexError:
+                pass
+            stack = deque()
+        else:
+            stack.pop()
+        if temp_stack_val:
+            temp[temp_k].update(temp_stack_val[temp_k])
+        elif temp_type:
+            temp[temp_k].update(temp_type)
+        api_params_dict.update(temp)
+        temp = OrderedDict()
+    return api_params_dict
+
+
 def main():
+    # with open("/rm_generator/swagger_tm.json") as file:
     with open(
-        "/Users/sjaiswal/Sumit/ansible_fork/collections/security_collections/doc_generator/swagger_tm.json"
+        "/Users/sjaiswal/Sumit/ansible_fork/collections/security_collections/doc_generator/apis_ckp.json",
+        encoding="cp1252",
     ) as file:
-        # with open(
-        #     "/Users/sjaiswal/Sumit/ansible_fork/collections/security_collections/doc_generator/FortiOS_7.0.3_Configuration_API_firewall.json"
-        # ) as file:
         json_content = file.read()
         data = json.loads(json_content, object_pairs_hook=OrderedDict)
-        api_object = data["paths"]["/intrusionpreventionrules"]["post"]
-        # api_object = data["paths"]["/firewall/policy"]["post"]
-        # api_object = data["paths"]["/firewall/multicast-address"]["post"]
+        # api_object = data["paths"]["/intrusionpreventionrules"]["post"]
+        request_fields = None
+        if data.get("commands") and data.get("objects"):
+            for each in data["commands"]:
+                if each["name"].get("web") == "add-threat-rule":
+                    # if each["name"].get("web") == "add-access-rule":
+                    request = each["request"]
+                    break
+            for each in data["objects"]:
+                if each["name"] == request:
+                    if (
+                        each.get("fields")
+                        and each.get("under-more-fields")
+                        and each.get("required-fields")
+                    ):
+                        request_fields = (
+                            each["required-fields"]
+                            + each["fields"]
+                            + each["under-more-fields"]
+                        )
+                    elif each.get("fields"):
+                        request_fields = each["fields"]
+                    break
         global_var_mgmt_dict = {}
-        post_properties = get_api_param_properties_recursively(
-            "$ref", api_object, data, global_var_mgmt_dict
-        )
-        # post_properties = get_api_param_properties_recursively(
-        #     "schema", api_object, data, global_var_mgmt_dict
-        # )
+        if request_fields:
+            post_properties = OrderedDict()
+            post_properties.update(
+                {
+                    "properties": ckp_params_fields_parsing(
+                        data["objects"], request_fields, global_var_mgmt_dict
+                    )
+                }
+            )
+        else:
+            post_properties = get_api_param_properties_recursively(
+                "$ref", api_object, data, global_var_mgmt_dict
+            )
+
         with open(
             "/Users/sjaiswal/Sumit/Self_Test/Basic/Ansible/params.json", "w+"
         ) as ff:
             ff.write("""{0}""".format(json.dumps(global_var_mgmt_dict)))
-        temp = {}
+
         attribute_map_by_param = {}
 
-        module_info = "Fortios Firewall Policy"
+        module_info = "Checkpoint MGMT Access Rule"
         module_version = "1.2.0"
-        parent_module = "fortios"
+        parent_module = "mgmt"
         generate_documentation(
             attribute_map_by_param,
             post_properties,
