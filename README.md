@@ -75,7 +75,7 @@ ansible-playbook -e rm_swagger_json=/swagger_tm.json \
 
 2. Fortinet
 ```
-rm -rf tests/rmb_tests/collections/ansible_collections/myorg/myos
+rm -rf tests/rmb_tests/collections/ansible_collections/fortinet/fortios
 ansible-playbook -e rm_swagger_json=/FortiOS_7.0.3_Configuration_API_firewall.json \
                  -e rm_dest=tests/rmb_tests/collections/ansible_collections/fortinet/fortios \
                  -e api_object_path=/firewall/policy \
@@ -85,6 +85,21 @@ ansible-playbook -e rm_swagger_json=/FortiOS_7.0.3_Configuration_API_firewall.js
                  -e collection_org=fortinet \
                  -e collection_name=fortios \
                  -e unique_key=policyid \
+		run.yaml -vvvv
+```
+
+2. CheckPoint
+```
+rm -rf tests/rmb_tests/collections/ansible_collections/checkpoint/mgmt
+ansible-playbook -e rm_swagger_json=/checkpoint_api.json \
+                 -e rm_dest=tests/rmb_tests/collections/ansible_collections/checkpoint/mgmt \
+                 -e api_object_path="add-access-rule" \
+                 -e module_name='cp_mgmt_add_access_rule' \
+                 -e module_version=1.2.0 \
+                 -e resource=access_rule \
+                 -e collection_org=checkpoint \
+                 -e collection_name=mgmt \
+                 -e unique_key="" \
 		run.yaml -vvvv
 ```
 

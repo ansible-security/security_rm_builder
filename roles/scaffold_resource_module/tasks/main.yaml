@@ -43,7 +43,7 @@
 
 - name: get the API object
   set_fact:
-    api_object: "api/{{ api_object_path.split('/')[1] }}"
+    api_object: "api/{{ api_object_path.split('/')[1] | default('default') }}"
 
 - name: Template each of the files
   include: template.yaml
