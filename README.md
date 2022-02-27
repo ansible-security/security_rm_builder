@@ -63,13 +63,15 @@ tests
 ```
 rm -rf tests/rmb_tests/collections/ansible_collections/trendmicro
 ansible-playbook -e rm_swagger_json=/swagger_tm.json \
-                 -e rm_dest=tests/rmb_tests/collections/ansible_collections/trendmicro/deepsec \
-                 -e api_object_path=/intrusion_prevention_rules/post \
-                 -e module_name='Intrusion Prevention Rules' \
+                 -e rm_dest=/tmp/trendmicro/deepsec \
+                 -e api_object_path=/intrusionpreventionrules/post \
+                 -e module_name='deepsec_intrusion_prevention_rules' \
                  -e module_version=1.2.0 \
                  -e resource=intrusion_prevention_rules \
                  -e collection_org=trendmicro \
                  -e collection_name=deepsec \
+                 -e unique_key="" \
+                 -e author="Ansible Security Automation Team (@justjais) <https://github.com/ansible-security>"
                  run.yaml
 ```
 
@@ -77,14 +79,15 @@ ansible-playbook -e rm_swagger_json=/swagger_tm.json \
 ```
 rm -rf tests/rmb_tests/collections/ansible_collections/fortinet/fortios
 ansible-playbook -e rm_swagger_json=/FortiOS_7.0.3_Configuration_API_firewall.json \
-                 -e rm_dest=tests/rmb_tests/collections/ansible_collections/fortinet/fortios \
+                 -e rm_dest=/tmp/fortinet/fortios \
                  -e api_object_path=/firewall/policy \
-                 -e module_name='firewall_policy' \
+                 -e module_name='fortios_firewall_policy' \
                  -e module_version=1.2.0 \
                  -e resource=firewall_policy \
                  -e collection_org=fortinet \
                  -e collection_name=fortios \
                  -e unique_key=policyid \
+                 -e author="Ansible Security Automation Team (@justjais) <https://github.com/ansible-security>"
 		run.yaml -vvvv
 ```
 
@@ -92,7 +95,7 @@ ansible-playbook -e rm_swagger_json=/FortiOS_7.0.3_Configuration_API_firewall.js
 ```
 rm -rf tests/rmb_tests/collections/ansible_collections/checkpoint/mgmt
 ansible-playbook -e rm_swagger_json=/checkpoint_api.json \
-                 -e rm_dest=tests/rmb_tests/collections/ansible_collections/checkpoint/mgmt \
+                 -e rm_dest=/tmp/checkpoint/mgmt \
                  -e api_object_path="add-access-rule" \
                  -e module_name='cp_mgmt_add_access_rule' \
                  -e module_version=1.2.0 \
@@ -100,6 +103,7 @@ ansible-playbook -e rm_swagger_json=/checkpoint_api.json \
                  -e collection_org=checkpoint \
                  -e collection_name=mgmt \
                  -e unique_key="" \
+                 -e author="Ansible Security Automation Team (@justjais) <https://github.com/ansible-security>"
 		run.yaml -vvvv
 ```
 

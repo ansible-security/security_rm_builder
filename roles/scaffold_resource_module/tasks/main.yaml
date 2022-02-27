@@ -6,13 +6,20 @@
       - "{{ module_name }}"
       - "{{ module_version }}"
       - "{{ collection_name }}"
+      - "{{ author }}"
 
 - name: Get the CURRENT WORKING DIR
   command: "pwd"
   register: dir
 
+- name: Create temporary build directory
+  ansible.builtin.tempfile:
+    state: directory
+    suffix: build
+  register: tmp_directory
+
 - name: EXECUTE the python script
-  command: python3 doc_generator.py
+  command: python3 doc_generator.py "{{ rm_swagger_json }}" "{{ api_object_path }}" "{{ module_name }}" "{{ module_version }}" "{{ resource }}" "{{ collection_org }}" "{{ collection_name }}" "{{ unique_key }}" "{{ author }}" "{{ tmp_directory["path"] }}"
   args:
     chdir: "{{ dir['stdout'] }}/security_rm_builder/roles/scaffold_resource_module/templates"
   delegate_to: 127.0.0.1
@@ -21,8 +28,8 @@
 - name: Display multiple file contents
   debug: var=item
   with_file:
-    - "/Users/sjaiswal/Sumit/Self_Test/Basic/Ansible/data.yml"
-    - "/Users/sjaiswal/Sumit/Self_Test/Basic/Ansible/params.json"
+    - "{{ tmp_directory['path'] }}/data.yml"
+    - "{{ tmp_directory['path'] }}/params.json"
   register: test
 
 - name: Copy the MODULE DOC

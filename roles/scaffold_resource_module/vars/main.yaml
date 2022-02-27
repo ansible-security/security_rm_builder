@@ -13,9 +13,9 @@ import_path: "ansible_collections.{{ collection_org|default('') }}.{{ collection
 # each of the files to be templated
 resource_module_templates:
 - source: module_directory/resource_module.py.j2
-  destination: "{{ parent_directory }}/modules/{{ collection_name }}_{{ resource }}.py"
+  destination: "{{ parent_directory }}/modules/{{ module_name }}.py"
   overwrite: True
 
 - source: action_directory/{{ collection_org }}/resource_action_plugin.py.j2
-  destination: "{{ parent_directory }}/action/{{ collection_name }}_{{ resource }}.py"
+  destination: "{{ parent_directory }}/action/{{ module_name }}.py"
   overwrite: False

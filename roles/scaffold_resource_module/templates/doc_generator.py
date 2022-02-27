@@ -4,6 +4,7 @@ __metaclass__ = type
 
 import json
 import re
+import sys
 import oyaml as yaml
 from collections import OrderedDict, deque
 
@@ -11,11 +12,12 @@ from ansible.module_utils.six import iteritems
 
 
 def generate_documentation(
-    attribute_map_by_param,
     json_payload,
-    parent_module,
-    module_info,
+    module_name,
     module_version,
+    module_resource,
+    author,
+    temp_data_file,
 ):
     def doc_option_generator(json_payload, temp_payload):
         for k, v in iteritems(json_payload):
@@ -195,17 +197,20 @@ def generate_documentation(
         module_description = json_payload["description"]
     if json_payload.get("properties"):
         json_payload = temp_json_payload
-    module_name = (
-        parent_module + "_" + "_".join(module_info.lower().split(" "))
-    )
+
+    module_resource = " ".join(module_resource.split("_")).upper()
     module_obj = {
         "module": "{0}".format(module_name),
-        "short_description": "Manages {0} resource module".format(module_info),
+        "short_description": "Manages {0} resource module".format(
+            module_resource
+        ),
         "description": "{0}".format(module_description),
         "version_added": "{0}".format(module_version),
         "options": {
             "config": {
-                "description": "A dictionary of Intrusion Prevention Rules options",
+                "description": "A dictionary of {0} options".format(
+                    module_resource
+                ),
                 "type": "list",
                 "elements": "dict",
                 "suboptions": json_payload,
@@ -219,14 +224,11 @@ def generate_documentation(
                 "choices": ["merged", "replaced", "gathered", "deleted"],
             },
         },
-        "author": "{0}".format(
-            "Ansible Security Automation Team (@justjais) <https://github.com/ansible-security>"
-        ),
+        "author": "{0}".format(author),
     }
+
     json_obj = json.dumps(module_obj)
-    with open(
-        "/Users/sjaiswal/Sumit/Self_Test/Basic/Ansible/data.yml", "w+"
-    ) as ff:
+    with open(temp_data_file, "w+") as ff:
         yaml_obj = yaml.safe_load(json_obj)
         ydump = yaml.dump(yaml_obj)
         ff.write("""{0}""".format(ydump))
@@ -823,36 +825,51 @@ def ckp_params_fields_parsing(object_data, api_params, global_var_mgmt_dict):
 
 
 def main():
-    # with open("/rm_generator/swagger_tm.json") as file:
-    with open(
-        "/Users/sjaiswal/Sumit/ansible_fork/collections/security_collections/doc_generator/apis_ckp.json",
-        encoding="cp1252",
-    ) as file:
+    ####################################################
+    #     str(sys.argv[0]) -> doc_generator.py
+    #     str(sys.argv[1]) -> rm_swagger_json
+    #     str(sys.argv[2]) -> api_object_path
+    #     str(sys.argv[3]) -> module_name
+    #     str(sys.argv[4]) -> module_version
+    #     str(sys.argv[5]) -> resource
+    #     str(sys.argv[6]) -> collection_org
+    #     str(sys.argv[7]) -> collection_name
+    #     str(sys.argv[8]) -> unique_key
+    #     str(sys.argv[9]) -> author
+    #     str(sys.argv[10])-> Temp Dir path
+    ####################################################
+
+    with open(str(sys.argv[1]), encoding="cp1252") as file:
         json_content = file.read()
         data = json.loads(json_content, object_pairs_hook=OrderedDict)
-        # api_object = data["paths"]["/intrusionpreventionrules"]["post"]
         request_fields = None
-        if data.get("commands") and data.get("objects"):
-            for each in data["commands"]:
-                if each["name"].get("web") == "add-threat-rule":
-                    # if each["name"].get("web") == "add-access-rule":
-                    request = each["request"]
-                    break
-            for each in data["objects"]:
-                if each["name"] == request:
-                    if (
-                        each.get("fields")
-                        and each.get("under-more-fields")
-                        and each.get("required-fields")
-                    ):
-                        request_fields = (
-                            each["required-fields"]
-                            + each["fields"]
-                            + each["under-more-fields"]
-                        )
-                    elif each.get("fields"):
-                        request_fields = each["fields"]
-                    break
+        if str(sys.argv[6]) == "checkpoint":
+            if data.get("commands") and data.get("objects"):
+                for each in data["commands"]:
+                    if each["name"].get("web") == str(sys.argv[2]):
+                        request = each["request"]
+                        break
+                for each in data["objects"]:
+                    if each["name"] == request:
+                        if (
+                            each.get("fields")
+                            and each.get("under-more-fields")
+                            and each.get("required-fields")
+                        ):
+                            request_fields = (
+                                each["required-fields"]
+                                + each["fields"]
+                                + each["under-more-fields"]
+                            )
+                        elif each.get("fields"):
+                            request_fields = each["fields"]
+                        break
+        elif str(sys.argv[6]) in ["trendmicro", "fortinet"]:
+            # TrendMicro
+            # api_object = data["paths"]["/intrusionpreventionrules"]["post"]
+            # Fortinet
+            # api_object = data["paths"]["/firewall/policy"]["post"]
+            api_object = data["paths"][str(sys.argv[2])]["post"]
         global_var_mgmt_dict = {}
         if request_fields:
             post_properties = OrderedDict()
@@ -868,22 +885,24 @@ def main():
                 "$ref", api_object, data, global_var_mgmt_dict
             )
 
-        with open(
-            "/Users/sjaiswal/Sumit/Self_Test/Basic/Ansible/params.json", "w+"
-        ) as ff:
+        attribute_map_by_param = {}
+        module_name = str(sys.argv[3])
+        module_resource = str(sys.argv[5])
+        module_version = str(sys.argv[4])
+        author = str(sys.argv[9])
+
+        temp_param_file = str(sys.argv[10]) + "/params.json"
+        temp_data_file = str(sys.argv[10]) + "/data.yml"
+        with open(temp_param_file, "w+") as ff:
             ff.write("""{0}""".format(json.dumps(global_var_mgmt_dict)))
 
-        attribute_map_by_param = {}
-
-        module_info = "Checkpoint MGMT Access Rule"
-        module_version = "1.2.0"
-        parent_module = "mgmt"
         generate_documentation(
-            attribute_map_by_param,
             post_properties,
-            parent_module,
-            module_info,
+            module_name,
             module_version,
+            module_resource,
+            author,
+            temp_data_file,
         )
 
 
