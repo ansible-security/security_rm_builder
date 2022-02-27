@@ -18,6 +18,10 @@
   assert:
     that: collection_name is defined
 
+- name: Ensure the 'author' is set
+  assert:
+    that: author is defined
+
 - name: "Create the collection directory structure"
   file:
     path: "{{ rm_dest }}/{{ item }}"
