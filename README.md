@@ -26,6 +26,16 @@ ansible-playbook -e rm_swagger_json=<vendor swagger json file> \
 
 ### Examples
 
+### run.yml:
+
+```
+---
+- hosts: localhost
+  gather_facts: yes
+  roles:
+    - ansible_security.security_rm_builder.run
+```
+
 **Collection directory layout**
 
 ```
