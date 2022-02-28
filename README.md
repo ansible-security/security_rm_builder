@@ -59,7 +59,7 @@ tests
                     └── tests
 ```
 
-1. Trendmicro
+### 1. Trendmicro
 ```
 rm -rf tests/rmb_tests/collections/ansible_collections/trendmicro
 ansible-playbook -e rm_swagger_json=/swagger_tm.json \
@@ -75,7 +75,7 @@ ansible-playbook -e rm_swagger_json=/swagger_tm.json \
                  run.yaml
 ```
 
-2. Fortinet
+### 2. Fortinet
 ```
 rm -rf tests/rmb_tests/collections/ansible_collections/fortinet/fortios
 ansible-playbook -e rm_swagger_json=/FortiOS_7.0.3_Configuration_API_firewall.json \
@@ -91,7 +91,7 @@ ansible-playbook -e rm_swagger_json=/FortiOS_7.0.3_Configuration_API_firewall.js
 		run.yaml -vvvv
 ```
 
-2. CheckPoint
+### 2. CheckPoint
 ```
 rm -rf tests/rmb_tests/collections/ansible_collections/checkpoint/mgmt
 ansible-playbook -e rm_swagger_json=/checkpoint_api.json \
