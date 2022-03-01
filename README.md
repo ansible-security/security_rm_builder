@@ -71,18 +71,15 @@ After changes to the builder, this test collection should be regenerated and the
 To generate the collection after changes:
 
 ```
-tests
-└── rmb_tests
-    └── collections
-        └── ansible_collections
-            └── trendmicro
-                └── deepsec
-                    ├── plugins
-                    │   ├── action
-                    │   │   └── deepsec_intrusion_prevention_rules.py
-                    │   └── modules
-                    │       └── deepsec_intrusion_prevention_rules.py
-                    └── tests
+tmp
+└── trendmicro
+    └── deepsec
+	├── plugins
+	│   ├── action
+	│   │   └── deepsec_intrusion_prevention_rules.py
+	│   └── modules
+	│       └── deepsec_intrusion_prevention_rules.py
+	└── tests
 ```
 
 ### 1. Trendmicro
