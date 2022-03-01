@@ -60,7 +60,7 @@ ansible-playbook -e rm_swagger_json=<vendor swagger json file> \
 │   ├── action
 │   │   └── <collection_name_api.py>
 │   └── modules
-│       ├── <collection_name_api.py>.py
+│       └── <collection_name_api.py>.py
 └── tests
 ```
 
