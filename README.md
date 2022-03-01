@@ -10,6 +10,10 @@ The `security_rm_builder` is an Ansible Collection that helps developers scaffol
 - Use a pre-defined OPENAPI based swagger JSON file or other JSON file to scaffold a resource module in an Ansible Collection.
 - Generates working resource module file `<vendor>_<resource>.py` and relevant action logic file both `action/<vendor>_<resource>.py`.
 
+**Requirements:**
+- Python3
+- Ansible
+
 #### Builing a new module/collection:
 ```
 ansible-playbook -e rm_swagger_json=<vendor swagger json file> \
@@ -83,7 +87,6 @@ tests
 
 ### 1. Trendmicro
 ```
-rm -rf tests/rmb_tests/collections/ansible_collections/trendmicro
 ansible-playbook -e rm_swagger_json=/swagger_tm.json \
                  -e rm_dest=/tmp/trendmicro/deepsec \
                  -e api_object_path=/intrusionpreventionrules/post \
@@ -99,7 +102,6 @@ ansible-playbook -e rm_swagger_json=/swagger_tm.json \
 
 ### 2. Fortinet
 ```
-rm -rf tests/rmb_tests/collections/ansible_collections/fortinet/fortios
 ansible-playbook -e rm_swagger_json=/FortiOS_7.0.3_Configuration_API_firewall.json \
                  -e rm_dest=/tmp/fortinet/fortios \
                  -e api_object_path=/firewall/policy \
@@ -115,7 +117,6 @@ ansible-playbook -e rm_swagger_json=/FortiOS_7.0.3_Configuration_API_firewall.js
 
 ### 2. CheckPoint
 ```
-rm -rf tests/rmb_tests/collections/ansible_collections/checkpoint/mgmt
 ansible-playbook -e rm_swagger_json=/checkpoint_api.json \
                  -e rm_dest=/tmp/checkpoint/mgmt \
                  -e api_object_path="add-access-rule" \
