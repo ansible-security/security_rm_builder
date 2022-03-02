@@ -9,4 +9,3 @@ license_file: LICENSE
 dependencies:
   "ansible.netcommon": "*"
 repository: https://github.com/ansible-security/security_rm_builder
-
