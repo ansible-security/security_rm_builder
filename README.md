@@ -14,6 +14,22 @@ The `security_rm_builder` is an Ansible Collection that helps developers scaffol
 - Python3
 - Ansible
 
+### Usage
+
+```
+pip install ansible-base
+ansible-galaxy collection install git+https://github.com/ansible-security/security_rm_builder.git
+```
+
+```yaml
+run.yml
+---
+- hosts: localhost
+  gather_facts: yes
+  roles:
+    - ansible_security.security_rm_builder.run
+```
+
 #### Builing a new module/collection:
 ```
 ansible-playbook -e rm_swagger_json=<vendor swagger json file> \
@@ -41,16 +57,6 @@ ansible-playbook -e rm_swagger_json=<vendor swagger json file> \
 
 
 ### Examples:
-
-### run.yml:
-
-```
----
-- hosts: localhost
-  gather_facts: yes
-  roles:
-    - ansible_security.security_rm_builder.run
-```
 
 **Collection directory layout:**
 
