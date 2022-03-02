@@ -1,0 +1,12 @@
+namespace: ansible_security
+name: security_rm_builder
+version: 0.0.1
+readme: README.md
+authors:
+  - Ansible Security Community (ansible-security)
+description: Scaffolding resource module tool for API based solutions
+license_file: LICENSE
+dependencies:
+  "ansible.netcommon": "*"
+repository: https://github.com/ansible-security/security_rm_builder
+
