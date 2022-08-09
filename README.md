@@ -90,7 +90,7 @@ tmp
 
 ### 1. Trendmicro
 
-run.yaml:
+run.yml:
 ```
 - hosts: localhost
   gather_facts: yes
@@ -126,7 +126,7 @@ ansible-playbook -e rm_swagger_json=/swagger_tm.json \
 
 ### 2. Fortinet
 
-run.yaml:
+run.yml:
 ```
 - hosts: localhost
   gather_facts: yes
@@ -162,7 +162,7 @@ ansible-playbook -e rm_swagger_json=/FortiOS_7.0.3_Configuration_API_firewall.js
 
 ### 2. CheckPoint
 
-run.yaml:
+run.yml:
 ```
 - hosts: localhost
   gather_facts: yes
