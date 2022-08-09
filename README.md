@@ -89,10 +89,31 @@ tmp
 ```
 
 ### 1. Trendmicro
+
+run.yaml:
+```
+- hosts: localhost
+  gather_facts: yes
+  vars:
+    rm_swagger_json: /swagger_tm.json
+    rm_dest: /tmp/trendmicro/deepsec
+    api_object_path: /intrusionpreventionrules
+    module_name: 'deepsec_intrusion_prevention_rules'
+    module_version: 1.2.0
+    resource: intrusion_prevention_rules
+    collection_org: trendmicro
+    collection_name: deepsec
+    unique_key: ""
+    author: "Ansible Security Automation Team (@justjais) <https://github.com/ansible-security>"
+  roles:
+    - ansible_security.security_rm_builder.run
+```
+
+or, directly pass the args as:
 ```
 ansible-playbook -e rm_swagger_json=/swagger_tm.json \
                  -e rm_dest=/tmp/trendmicro/deepsec \
-                 -e api_object_path=/intrusionpreventionrules/post \
+                 -e api_object_path=/intrusionpreventionrules \
                  -e module_name='deepsec_intrusion_prevention_rules' \
                  -e module_version=1.2.0 \
                  -e resource=intrusion_prevention_rules \
@@ -104,6 +125,27 @@ ansible-playbook -e rm_swagger_json=/swagger_tm.json \
 ```
 
 ### 2. Fortinet
+
+run.yaml:
+```
+- hosts: localhost
+  gather_facts: yes
+  vars:
+    rm_swagger_json: /FortiOS_7.0.3_Configuration_API_firewall.json
+    rm_dest: /tmp/fortinet/fortios
+    api_object_path: /firewall/policy
+    module_name: fortios_firewall_policy
+    module_version: 1.2.0
+    resource: firewall_policy
+    collection_org: fortinet
+    collection_name: fortios
+    unique_key: policyid
+    author: "Ansible Security Automation Team (@justjais) <https://github.com/ansible-security>"
+  roles:
+    - ansible_security.security_rm_builder.run
+```
+
+or, directly pass the args as:
 ```
 ansible-playbook -e rm_swagger_json=/FortiOS_7.0.3_Configuration_API_firewall.json \
                  -e rm_dest=/tmp/fortinet/fortios \
@@ -119,6 +161,27 @@ ansible-playbook -e rm_swagger_json=/FortiOS_7.0.3_Configuration_API_firewall.js
 ```
 
 ### 2. CheckPoint
+
+run.yaml:
+```
+- hosts: localhost
+  gather_facts: yes
+  vars:
+    rm_swagger_json: /checkpoint_api.json
+    rm_dest: /tmp/checkpoint/mgmt
+    api_object_path: add-access-rule
+    module_name: cp_mgmt_add_access_rule
+    module_version: 1.2.0
+    resource: access_rule
+    collection_org: checkpoint
+    collection_name: mgmt
+    unique_key: ""
+    author: "Ansible Security Automation Team (@justjais) <https://github.com/ansible-security>"
+  roles:
+    - ansible_security.security_rm_builder.run
+```
+
+or, directly pass the args as:
 ```
 ansible-playbook -e rm_swagger_json=/checkpoint_api.json \
                  -e rm_dest=/tmp/checkpoint/mgmt \

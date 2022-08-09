@@ -884,6 +884,9 @@ def main():
             post_properties = get_api_param_properties_recursively(
                 "$ref", api_object, data, global_var_mgmt_dict
             )
+            # post_properties = get_api_param_properties_recursively(
+            #     "schema", api_object, data, global_var_mgmt_dict
+            # )
 
         attribute_map_by_param = {}
         module_name = str(sys.argv[3])
